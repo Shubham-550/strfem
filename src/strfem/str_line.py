@@ -1,4 +1,4 @@
-from strfem import Node
+from strfem.str_node import Node
 
 
 class Line:
