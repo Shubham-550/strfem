@@ -25,9 +25,14 @@ class Line:
         self.node1 = node1
         self.node2 = node2
 
-    def to_string(self) -> None:
-        """Print the details of the line element."""
-        print(f"Line #{self.id} ({self.node1.id} -> {self.node2.id})")
+
+    def __str__(self) -> str:
+        """Represent the string representation of the line
+
+        Returns:
+            Formatted string with line details
+        """
+        return f"Line #{self.id} ({self.node1.id} -> {self.node2.id})"
 
 
 def main() -> None:
@@ -40,9 +45,9 @@ def main() -> None:
     line2 = Line(2, node2, node3)
     line3 = Line(3, node3, node4)
 
-    line1.to_string()
-    line2.to_string()
-    line3.to_string()
+    print(line1)
+    print(line2)
+    print(line3)
 
 
 if __name__ == "__main__":

@@ -25,17 +25,22 @@ class Node:
         self.y = self.coord[1]
         self.z = self.coord[2]
 
-    def to_string(self) -> None:
-        """Print the node's details"""
+    def __str__(self) -> str:
+        """Represent the string representation of the node
+
+        Returns:
+            Formatted string with node details
+        """
         coord_str = f"[{self.x:5.2f},{self.y:5.2f},{self.z:5.2f}]"
-        print(f"Node #{self.id} at {coord_str}")
+        return f"Node #{self.id} at {coord_str}"
 
 
 def main() -> None:
     node1 = Node(1, [1, 2, 3])
     node2 = Node(2, [4, 5, 6])
-    node1.to_string()
-    node2.to_string()
+
+    print(node1)
+    print(node2)
 
 
 if __name__ == "__main__":

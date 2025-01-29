@@ -1,8 +1,9 @@
-from src.strfem import *
+from src.strfem import Viewer, Controller
 
 
 def main() -> None:
     controller = Controller()
+    viewer = Viewer()
 
     node1 = controller.add_node([0, 0, 0])
     node2 = controller.add_node([0, 0, 5])
@@ -13,7 +14,9 @@ def main() -> None:
     line2 = controller.add_line(node2, node3)
     line3 = controller.add_line(node3, node4)
 
-    controller.to_string()
+    print(controller)
+
+    viewer.render(controller)
 
 
 if __name__ == "__main__":
