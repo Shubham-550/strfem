@@ -9,6 +9,7 @@ from strfem.str_line import Line
 from strfem.str_support import Support
 from strfem.str_section import Section
 from strfem.str_material import Material
+from strfem.str_release import Release
 
 
 @dataclass()
@@ -21,12 +22,14 @@ class Controller:
         self.support_id: int = 0
         self.section_id: int = 0
         self.material_id: int = 0
+        self.release_id: int = 0
 
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
         self.supports: list[Support] = []
         self.sections: list[Section] = []
         self.materials: list[Material] = []
+        self.releases: list[Release] = []
 
         self.epsilon: float = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
@@ -306,6 +309,149 @@ class Controller:
     def remove_material(self, line) -> None:
         line.assign_material(None)
 
+    # HH: Releases
+
+    def add_release(
+        self,
+        name: str,
+        kux_start: float,
+        kuy_start: float,
+        kuz_start: float,
+        krx_start: float,
+        kry_start: float,
+        krz_start: float,
+        kux_end: float,
+        kuy_end: float,
+        kuz_end: float,
+        krx_end: float,
+        kry_end: float,
+        krz_end: float,
+    ) -> Release:
+        self.release_id += 1
+        id = self.release_id
+
+        release = Release(
+            id,
+            name,
+            kux_start,
+            kuy_start,
+            kuz_start,
+            krx_start,
+            kry_start,
+            krz_start,
+            kux_end,
+            kuy_end,
+            kuz_end,
+            krx_end,
+            kry_end,
+            krz_end,
+        )
+
+        self.releases.append(release)
+        return release
+
+    def add_release_rigid_pinned(self, name) -> Release:
+        self.release_id += 1
+        id = self.release_id
+
+        release = Release(
+            id,
+            name,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_free,
+            Release.kr_free,
+            Release.kr_free,
+        )
+
+        self.releases.append(release)
+        return release
+
+    def add_release_pinned_rigid(self, name) -> Release:
+        self.release_id += 1
+        id = self.release_id
+
+        release = Release(
+            id,
+            name,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_free,
+            Release.kr_free,
+            Release.kr_free,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+        )
+
+        self.releases.append(release)
+        return release
+
+    def add_release_pinned_pinned(self, name) -> Release:
+        self.release_id += 1
+        id = self.release_id
+
+        release = Release(
+            id,
+            name,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_free,
+            Release.kr_free,
+            Release.kr_free,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_free,
+            Release.kr_free,
+            Release.kr_free,
+        )
+
+        self.releases.append(release)
+        return release
+
+    def add_release_rigid_rigid(self, name) -> Release:
+        self.release_id += 1
+        id = self.release_id
+
+        release = Release(
+            id,
+            name,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.ku_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+            Release.kr_rigid,
+        )
+
+        self.releases.append(release)
+        return release
+
+    def apply_release(self, line, release) -> None:
+        line.assign_release(release)
+
+    def remove_release(self, line) -> None:
+        line.assign_release(None)
+
     # HH: Reporting
 
     def __str__(self) -> str:
@@ -330,6 +476,7 @@ class Controller:
             ("Support", self.supports),
             ("Section", self.sections),
             ("Material", self.materials),
+            ("Release", self.releases),
         ]
 
         for section_name, section_items in sections:

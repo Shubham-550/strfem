@@ -5,6 +5,7 @@ from .str_line import Line
 from .str_support import Support
 from .str_section import Section
 from .str_material import Material
+from .str_release import Release
 
 __all__ = [
     "Controller",
@@ -14,4 +15,5 @@ __all__ = [
     "Support",
     "Section",
     "Material",
+    "Release",
 ]

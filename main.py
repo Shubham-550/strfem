@@ -41,6 +41,15 @@ def main() -> None:
     controller.apply_material(line1, material1)
     controller.apply_material(line2, material2)
 
+    # Releases
+    release1 = controller.add_release_pinned_rigid("Pin-Rigid2")
+    release2 = controller.add_release_rigid_pinned("Rigid-Pin")
+    release3 = controller.add_release_pinned_pinned("Pin-Pin")
+
+    controller.apply_release(line1, release1)
+    controller.apply_release(line2, release2)
+    controller.apply_release(line3, release3)
+
     print(controller)
 
     # viewer.render(controller)

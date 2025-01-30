@@ -29,24 +29,27 @@ class Support:
     kry: float = kr_free
     krz: float = kr_free
 
-    # Computed fields
-    stiffness: list[float] = field(init=False)
-    status: list[str] = field(init=False)
-
     def __post_init__(self):
-        # Normalize zero stiffness values
-        self.kux = self.ku_free if self.kux == 0 else self.kux
-        self.kuy = self.ku_free if self.kuy == 0 else self.kuy
-        self.kuz = self.ku_free if self.kuz == 0 else self.kuz
-        self.krx = self.kr_free if self.krx == 0 else self.krx
-        self.kry = self.kr_free if self.kry == 0 else self.kry
-        self.krz = self.kr_free if self.krz == 0 else self.krz
+        for attr in ["kux", "kuy", "kuz"]:
+            if getattr(self, attr) == 0:
+                setattr(self, attr, self.ku_free)
+
+        for attr in ["krx", "kry", "krz"]:
+            if getattr(self, attr) == 0:
+                setattr(self, attr, self.kr_free)
 
         # Compute stiffness array
-        self.stiffness = [self.kux, self.kuy, self.kuz, self.krx, self.kry, self.krz]
+        self.stiffness: list[float] = [
+            self.kux,
+            self.kuy,
+            self.kuz,
+            self.krx,
+            self.kry,
+            self.krz,
+        ]
 
         # Compute support status
-        self.status = self._compute_support_status()
+        self.status: list[str] = self._compute_support_status()
 
     def _compute_support_status(self) -> list[str]:
         """
@@ -70,45 +73,19 @@ class Support:
             free_threshold = self.ku_free if is_translation else self.kr_free
             rigid_threshold = self.ku_rigid if is_translation else self.kr_rigid
 
-            if k <= free_threshold:
-                return "f"  # Free
-            elif k >= rigid_threshold:
-                return "x"  # Fixed
-            else:
-                return "_"  # Partially constrained
+            return "f" if k <= free_threshold else "x" if k >= rigid_threshold else "_"
 
-        # Compute status for translation and rotation DOFs
-        translation_status = [
-            get_status(self.kux, True),
-            get_status(self.kuy, True),
-            get_status(self.kuz, True),
+        return [
+            get_status(getattr(self, attr), is_translation)
+            for attr, is_translation in [
+                ("kux", True),
+                ("kuy", True),
+                ("kuz", True),
+                ("krx", False),
+                ("kry", False),
+                ("krz", False),
+            ]
         ]
-
-        rotation_status = [
-            get_status(self.krx, False),
-            get_status(self.kry, False),
-            get_status(self.krz, False),
-        ]
-
-        return translation_status + rotation_status
-
-    def is_free(self, stiffness, free_threshold, rigid_threshold):
-        """
-        Determines if the stiffness value represents a free or fixed support.
-
-        Args:
-            stiffness (float): The stiffness value to evaluate.
-            free_threshold (float): Threshold below which the support is considered free.
-
-        Returns:
-            str: "f" if free, "x" if fixed.
-        """
-        if stiffness <= free_threshold:
-            return "f"
-        elif stiffness >= rigid_threshold:
-            return "x"
-        else:
-            return "_"
 
     def __str__(self) -> str:
         """
@@ -116,4 +93,16 @@ class Support:
         """
 
         status_str = "".join(self.status[:3]) + "," + "".join(self.status[3:])
-        return f"Supports #{self.id} {self.name} [{status_str}]"
+        return f"Support #{self.id} {self.name:<10} [{status_str}]"
+
+
+def main() -> None:
+    support1 = Support(1, "Pin", 1e15, 1e15, 1e15, 1e-4, 1e-4, 1e-4)
+    support2 = Support(2, "Rigid", 1e15, 1e15, 1e15, 1e-4, 1e-4, 1e-4)
+
+    print(support1)
+    print(support2)
+
+
+if __name__ == "__main__":
+    main()

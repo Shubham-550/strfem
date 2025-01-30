@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from strfem.str_node import Node
 from strfem.str_section import Section
 from strfem.str_material import Material
+from strfem.str_release import Release
 
 
 @dataclass()
@@ -34,12 +35,16 @@ class Line:
     def __post_init__(self) -> None:
         self.section: Section | None = None
         self.material: Material | None = None
+        self.release: Material | None = None
 
     def assign_section(self, section: Section | None) -> None:
         self.section = section
 
     def assign_material(self, material: Material | None) -> None:
         self.material = material
+
+    def assign_release(self, release: Release | None) -> None:
+        self.release = release
 
     def __str__(self) -> str:
         """
@@ -57,7 +62,8 @@ class Line:
             f"  Nodes:       {self.node1.id} -> {self.node2.id}\n"
             f"  Coordinates: {node1_coord} -> {node2_coord}\n"
             f"  Section:     {self.section.name if self.section else 'Unassigned'}\n"
-            f"  Material:    {self.material.name if self.material else 'Unassigned'}"
+            f"  Material:    {self.material.name if self.material else 'Unassigned'}\n"
+            f"  Release:     {self.release.name if self.release else 'Unassigned'}\n"
         )
 
 
