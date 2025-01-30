@@ -39,7 +39,7 @@ class Node:
         """Return a formatted string representation of the node."""
         coord_str = f"[{self.x:5.2f},{self.y:5.2f},{self.z:5.2f}]"
         support_status = self.support.name if self.support else "Free"
-        return f"Node #{self.id} ({support_status}) at {coord_str}"
+        return f"Node #{self.id} ({support_status:<8}) at {coord_str}"
 
     def __hash__(self) -> int:
         return hash(self.id)  # Use the unique ID for hashing

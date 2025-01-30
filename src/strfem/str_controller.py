@@ -8,6 +8,7 @@ from strfem.str_node import Node
 from strfem.str_line import Line
 from strfem.str_support import Support
 from strfem.str_section import Section
+from strfem.str_material import Material
 
 
 @dataclass()
@@ -19,11 +20,13 @@ class Controller:
         self.line_id: int = 0
         self.support_id: int = 0
         self.section_id: int = 0
+        self.material_id: int = 0
 
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
         self.supports: list[Support] = []
         self.sections: list[Section] = []
+        self.materials: list[Material] = []
 
         self.epsilon: float = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
@@ -192,7 +195,7 @@ class Controller:
 
     def add_section(self, name, Ax, Ix, Iy, Iz) -> Section:
         self.section_id += 1
-        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        section = Section(self.section_id, name, Ax, Ix, Iy, Iz)
         self.sections.append(section)
         return section
 
@@ -222,7 +225,7 @@ class Controller:
         Iz = dz * (dy**3) / 12
         Ix = Iy + Iz
 
-        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        section = Section(self.section_id, name, Ax, Ix, Iy, Iz)
         self.sections.append(section)
         return section
 
@@ -245,7 +248,7 @@ class Controller:
         Iz = Iy
         Ix = 2 * Iy
 
-        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        section = Section(self.section_id, name, Ax, Ix, Iy, Iz)
         self.sections.append(section)
         return section
 
@@ -274,7 +277,7 @@ class Controller:
         Iz = dy * dz * (dy**2 - dy * dz + dz**2) / 12
         Ix = Iy + Iz
 
-        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        section = Section(self.section_id, name, Ax, Ix, Iy, Iz)
         self.sections.append(section)
         return section
 
@@ -287,6 +290,21 @@ class Controller:
 
     def remove_section(self, line) -> None:
         line.assign_section(None)
+
+    # HH: Material Properties
+
+    def add_material(self, name, E, G, nu) -> Material:
+        self.material_id += 1
+
+        material = Material(self.material_id, name, E, G, nu)
+        self.materials.append(material)
+        return material
+
+    def apply_material(self, line, material) -> None:
+        line.assign_material(material)
+
+    def remove_material(self, line) -> None:
+        line.assign_material(None)
 
     # HH: Reporting
 
@@ -311,6 +329,7 @@ class Controller:
             ("Lines", self.lines),
             ("Support", self.supports),
             ("Section", self.sections),
+            ("Material", self.materials),
         ]
 
         for section_name, section_items in sections:
