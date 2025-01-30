@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import numpy as np
-from typing import Optional
 
 
 class Viewer:
@@ -38,7 +37,7 @@ class Viewer:
         self.alpha: float = 0.7
 
     def render_node(
-        self, node, color: Optional[str] = None, size: Optional[float] = None
+        self, node, color: str | None = None, size: float | None = None
     ) -> None:
         """
         Render individual node with customizable appearance.
@@ -60,7 +59,7 @@ class Viewer:
         )
 
     def render_line(
-        self, line, color: Optional[str] = None, width: Optional[float] = None
+        self, line, color: str | None = None, width: float | None = None
     ) -> None:
         """
         Render individual line with customizable appearance.

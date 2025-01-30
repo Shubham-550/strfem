@@ -1,13 +1,13 @@
 import numpy as np
 import numpy.typing as npt
 
-from typing import Optional
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
+from strfem.log import setup_controller_logging
 from strfem.str_node import Node
 from strfem.str_line import Line
 from strfem.str_support import Support
-from strfem.log import setup_controller_logging
+from strfem.str_section import Section
 
 
 @dataclass()
@@ -15,15 +15,17 @@ class Controller:
     precision: int = 6
 
     def __post_init__(self) -> None:
-        self.node_id = 0
-        self.line_id = 0
-        self.support_id = 0
+        self.node_id: int = 0
+        self.line_id: int = 0
+        self.support_id: int = 0
+        self.section_id: int = 0
 
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
         self.supports: list[Support] = []
+        self.sections: list[Section] = []
 
-        self.epsilon = 10 ** (-self.precision)
+        self.epsilon: float = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
         self.line_lookup: dict[tuple[Node, Node], Line] = {}
 
@@ -71,9 +73,7 @@ class Controller:
 
     # HH: Line
 
-    def add_line(
-        self, node1: Optional[Node] = None, node2: Optional[Node] = None
-    ) -> Optional[Line]:
+    def add_line(self, node1: Node | None = None, node2: Node | None = None) -> Line:
         """
         Adds a line between two nodes if it doesn't already exist.
 
@@ -92,12 +92,13 @@ class Controller:
                     "Both node1 and node2 must be provided to create a line."
                 )
 
+            # TODO: Handle None returns in Line creation
             # Check for self-connection
             if node1 == node2:
                 self.logger.error(
                     f"Line cannot connect a node to itself (Node ID: {node1.id})"
                 )
-                return None
+                return Line(-1, node1, node2)
 
             # Check for existing lines
             sorted_nodes = sorted([node1, node2], key=lambda n: n.id)
@@ -187,6 +188,106 @@ class Controller:
     def remove_support(self, node: Node) -> None:
         node.assign_support(None)
 
+    # HH: Section Definitions
+
+    def add_section(self, name, Ax, Ix, Iy, Iz) -> Section:
+        self.section_id += 1
+        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        self.sections.append(section)
+        return section
+
+    def add_section_rect(self, name, dy, dz) -> Section:
+        """
+        Args:
+        dy = dimension parallel to Y-axis and perpendicula to Z-axis
+             dimension || to Y-axis and _|_ to Z-axis
+             width
+
+        dz = dimension parallel to Z-axis and perpendicula to Y-axis
+             dimension || to Z-axis and _|_ to Y-axis
+             height
+
+
+        Ax = dy * dz
+        Iy = dz * (dy^3) / 12
+        Iz = dy * (dz^3) / 12
+        Ix = Iy + Iz
+        """
+
+        self.section_id += 1
+
+        # Calculate the section parameter for rectangle
+        Ax = dy * dz
+        Iy = dy * (dz**3) / 12
+        Iz = dz * (dy**3) / 12
+        Ix = Iy + Iz
+
+        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        self.sections.append(section)
+        return section
+
+    def add_section_circ(self, name: str, dia: float) -> Section:
+        """
+        Args:
+        dia = diameter of circle in YZ plane
+
+        Ax = ( pi * dia^2  ) / 4
+        Iy = dia^4 / 64
+        Iz = Iy
+        Ix = 2 * Iy
+        """
+
+        self.section_id += 1
+
+        # Calculate the section parameter for circle
+        Ax = np.pi * dia * dia / 4
+        Iy = dia**4 / 64
+        Iz = Iy
+        Ix = 2 * Iy
+
+        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        self.sections.append(section)
+        return section
+
+    def add_section_tri(self, name: str, dy: float, dz: float) -> Section:
+        """
+        Args:
+        dy = dimension parallel to Y-axis and perpendicula to Z-axis
+             dimension || to Y-axis and _|_ to Z-axis
+             base of the triange
+
+        dz = dimension parallel to Z-axis and perpendicula to Y-axis
+             dimension || to Z-axis and _|_ to Y-axis
+             height of the triangle
+
+        Ax = 0.5 * dy * dz
+        Iy = dz * (dy^3) / 12
+        Iz = dy * (dz^3) / 12
+        Ix = Iy + Iz
+        """
+
+        self.section_id += 1
+
+        # Calculate the section parameter for triangle
+        Ax = 0.5 * dy * dz
+        Iy = dz * (dy**3) / 36
+        Iz = dy * dz * (dy**2 - dy * dz + dz**2) / 12
+        Ix = Iy + Iz
+
+        section = Section(self.support_id, name, Ax, Ix, Iy, Iz)
+        self.sections.append(section)
+        return section
+
+    # TODO: def add_section_I(self, h, tw, wfb, tfb, wft, tft)
+
+    # TODO: find the polar MOI for arbitary shape
+
+    def apply_section(self, line, section) -> None:
+        line.assign_section(section)
+
+    def remove_section(self, line) -> None:
+        line.assign_section(None)
+
     # HH: Reporting
 
     def __str__(self) -> str:
@@ -209,6 +310,7 @@ class Controller:
             ("Nodes", self.nodes),
             ("Lines", self.lines),
             ("Support", self.supports),
+            ("Section", self.sections),
         ]
 
         for section_name, section_items in sections:

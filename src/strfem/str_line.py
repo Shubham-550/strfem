@@ -1,7 +1,8 @@
 from typing import ClassVar
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from strfem.str_node import Node
+from strfem.str_section import Section
 
 
 @dataclass()
@@ -29,16 +30,32 @@ class Line:
     node1: Node
     node2: Node
 
+    def __post_init__(self) -> None:
+        self.section: Section | None = None
+
+    def assign_section(self, section: Section | None) -> None:
+        self.section = section
+
     def __str__(self) -> str:
-        """Represent the string representation of the line
+        """
+        Generate a comprehensive string representation of the line element.
 
         Returns:
-            Formatted string with line details
+            Detailed formatted string with line properties and coordinates
         """
-        return f"Line #{self.id} (N{self.node1.id} -> N{self.node2.id})"
+        node1_coord = f"[{self.node1.x:.2f}, {self.node1.y:.2f}, {self.node1.z:.2f}]"
+        node2_coord = f"[{self.node2.x:.2f}, {self.node2.y:.2f}, {self.node2.z:.2f}]"
+
+        return (
+            f"Line Details:\n"
+            f"  ID:       #{self.id}\n"
+            f"  Nodes:    {self.node1.id} -> {self.node2.id}\n"
+            f"  Coordinates: {node1_coord} -> {node2_coord}\n"
+            f"  Section:  {self.section.name if self.section else 'Unassigned'}\n"
+        )
 
 
-def main() -> None:
+def main():
     node1 = Node(1, [1, 2, 3])
     node2 = Node(2, [4, 5, 6])
     node3 = Node(3, [7, 8, 9])

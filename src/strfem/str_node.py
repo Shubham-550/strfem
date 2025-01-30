@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.typing as npt
 
-from typing import Optional
 from dataclasses import dataclass, field
 
 from strfem.str_support import Support
@@ -25,14 +24,14 @@ class Node:
     id: int
     coord: npt.ArrayLike = field(default_factory=lambda: np.empty(3, dtype=float))
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Decompose coordinates
         self.coord = np.array(self.coord)
         self.x, self.y, self.z = self.coord
 
-        self.support: Optional[Support] = None
+        self.support: Support | None = None
 
-    def assign_support(self, support: Optional[Support]) -> None:
+    def assign_support(self, support: Support | None) -> None:
         """Assign a support condition to the node"""
         self.support = support
 
