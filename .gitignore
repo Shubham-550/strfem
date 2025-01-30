@@ -3,3 +3,4 @@ __pycache__
 uv.lock
 py_resources.md
 /logs
+str_test.py

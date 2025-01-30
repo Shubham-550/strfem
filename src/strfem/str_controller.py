@@ -2,22 +2,28 @@ import numpy as np
 import numpy.typing as npt
 
 from typing import Optional
+from dataclasses import dataclass, field
 
 from strfem.str_node import Node
 from strfem.str_line import Line
+from strfem.str_support import Support
 from strfem.log import setup_controller_logging
 
 
+@dataclass()
 class Controller:
-    def __init__(self, precision: int = 6) -> None:
+    precision: int = 6
+
+    def __post_init__(self) -> None:
         self.node_id = 0
         self.line_id = 0
+        self.support_id = 0
+
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
+        self.supports: list[Support] = []
 
-        self.precision: int = precision
-
-        self.epsilon = 10 ** (-precision)
+        self.epsilon = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
         self.line_lookup: dict[tuple[Node, Node], Line] = {}
 
@@ -26,7 +32,7 @@ class Controller:
 
     # HH: Node
 
-    def add_node(self, coord: npt.ArrayLike = [0, 0, 0]) -> Node:
+    def add_node(self, coord: npt.ArrayLike = np.empty(3, dtype=float)) -> Node:
         """
         Add a node if it doesn't already exist.
 
@@ -67,7 +73,7 @@ class Controller:
 
     def add_line(
         self, node1: Optional[Node] = None, node2: Optional[Node] = None
-    ) -> Line:
+    ) -> Optional[Line]:
         """
         Adds a line between two nodes if it doesn't already exist.
 
@@ -80,13 +86,18 @@ class Controller:
         """
 
         try:
+            # Validate node inputs
             if (node1 is None) or (node2 is None):
                 raise ValueError(
                     "Both node1 and node2 must be provided to create a line."
                 )
 
+            # Check for self-connection
             if node1 == node2:
-                raise ValueError("Line cannot connect a node to itself")
+                self.logger.error(
+                    f"Line cannot connect a node to itself (Node ID: {node1.id})"
+                )
+                return None
 
             # Check for existing lines
             sorted_nodes = sorted([node1, node2], key=lambda n: n.id)
@@ -109,6 +120,73 @@ class Controller:
             self.logger.error(f"Line creation failed: {e}")
             raise
 
+    # HH: Support Definitions
+    def add_support(
+        self,
+        name: str = "support",
+        kux: float = 0,
+        kuy: float = 0,
+        kuz: float = 0,
+        krx: float = 0,
+        kry: float = 0,
+        krz: float = 0,
+    ) -> Support:
+        self.support_id += 1
+        support = Support(self.support_id, name, kux, kuy, kuz, krx, kry, krz)
+        self.supports.append(support)
+        return support
+
+    def add_support_fixed(self, label: str) -> Support:
+        self.support_id += 1
+        support = Support(
+            self.support_id,
+            label,
+            kux=Support.ku_rigid,
+            kuy=Support.ku_rigid,
+            kuz=Support.ku_rigid,
+            krx=Support.kr_rigid,
+            kry=Support.kr_rigid,
+            krz=Support.kr_rigid,
+        )
+        self.supports.append(support)
+        return support
+
+    def add_support_pinned(self, label: str) -> Support:
+        self.support_id += 1
+        support = Support(
+            self.support_id,
+            label,
+            kux=Support.ku_rigid,
+            kuy=Support.ku_rigid,
+            kuz=Support.ku_rigid,
+            krx=Support.kr_free,
+            kry=Support.kr_free,
+            krz=Support.kr_free,
+        )
+        self.supports.append(support)
+        return support
+
+    def add_support_roller(self, label: str) -> Support:
+        self.support_id += 1
+        support = Support(
+            self.support_id,
+            label,
+            kux=Support.ku_free,
+            kuy=Support.ku_free,
+            kuz=Support.ku_rigid,
+            krx=Support.kr_free,
+            kry=Support.kr_free,
+            krz=Support.kr_free,
+        )
+        self.supports.append(support)
+        return support
+
+    def apply_support(self, node: Node, support: Support) -> None:
+        node.assign_support(support)
+
+    def remove_support(self, node: Node) -> None:
+        node.assign_support(None)
+
     # HH: Reporting
 
     def __str__(self) -> str:
@@ -130,6 +208,7 @@ class Controller:
         sections = [
             ("Nodes", self.nodes),
             ("Lines", self.lines),
+            ("Support", self.supports),
         ]
 
         for section_name, section_items in sections:
