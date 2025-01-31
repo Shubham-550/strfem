@@ -11,6 +11,7 @@ from strfem.str_section import Section
 from strfem.str_material import Material
 from strfem.str_release import Release
 from strfem.str_load_case import LoadCase
+from strfem.str_nodal_load import NodalLoad
 
 
 @dataclass()
@@ -25,6 +26,7 @@ class Controller:
         self.material_id: int = 0
         self.release_id: int = 0
         self.load_case_id: int = 0
+        self.nodal_load_id: int = 0
 
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
@@ -33,6 +35,7 @@ class Controller:
         self.materials: list[Material] = []
         self.releases: list[Release] = []
         self.load_cases: list[LoadCase] = []
+        self.nodal_loads: list[NodalLoad] = []
 
         self.epsilon: float = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
@@ -459,12 +462,36 @@ class Controller:
 
     def add_load_case(self, name) -> LoadCase:
         self.load_case_id += 1
-        id = self.load_case_id
 
-        load_case = LoadCase(id, name)
+        load_case = LoadCase(self.load_case_id, name)
 
         self.load_cases.append(load_case)
         return load_case
+
+    # HH: Nodal load
+
+    def add_nodal_load(
+        self,
+        load_case_id: int,
+        Fx: float = 0,
+        Fy: float = 0,
+        Fz: float = 0,
+        Mx: float = 0,
+        My: float = 0,
+        Mz: float = 0,
+    ) -> NodalLoad:
+        self.nodal_load_id += 1
+
+        nodal_load = NodalLoad(self.nodal_load_id, load_case_id, Fx, Fy, Fz, Mx, My, Mz)
+
+        self.nodal_loads.append(nodal_load)
+        return nodal_load
+
+    def apply_nodal_load(self, nodal_load: NodalLoad, node: Node) -> None:
+        nodal_load.apply(node)
+
+    def remove_nodal_load(self, nodal_load: NodalLoad, node: Node) -> None:
+        nodal_load.remove(node)
 
     # HH: Reporting
 
@@ -492,6 +519,7 @@ class Controller:
             ("Material", self.materials),
             ("Release", self.releases),
             ("Load Case", self.load_cases),
+            ("Nodal Load", self.nodal_loads),
         ]
 
         for section_name, section_items in sections:

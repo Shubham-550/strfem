@@ -55,6 +55,17 @@ def main() -> None:
     load_case2 = controller.add_load_case("Live Load")
     load_case3 = controller.add_load_case("Wind Load")
 
+    # Nodal Loads
+    nodal_load1 = controller.add_nodal_load(load_case1.id, *range(1, 7))
+    nodal_load2 = controller.add_nodal_load(load_case1.id, *range(7, 13))
+    nodal_load3 = controller.add_nodal_load(load_case1.id, *range(13, 19))
+
+    controller.apply_nodal_load(nodal_load1, node1)
+    controller.apply_nodal_load(nodal_load2, node2)
+    controller.apply_nodal_load(nodal_load1, node1)
+    controller.apply_nodal_load(nodal_load1, node4)
+    controller.remove_nodal_load(nodal_load1, node4)
+
     print(controller)
 
     # viewer.render(controller)
