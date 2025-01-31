@@ -35,7 +35,7 @@ class Line:
     def __post_init__(self) -> None:
         self.section: Section | None = None
         self.material: Material | None = None
-        self.release: Material | None = None
+        self.release: Release | None = None
 
     def assign_section(self, section: Section | None) -> None:
         self.section = section

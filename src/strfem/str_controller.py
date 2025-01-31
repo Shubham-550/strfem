@@ -10,6 +10,7 @@ from strfem.str_support import Support
 from strfem.str_section import Section
 from strfem.str_material import Material
 from strfem.str_release import Release
+from strfem.str_load_case import LoadCase
 
 
 @dataclass()
@@ -23,6 +24,7 @@ class Controller:
         self.section_id: int = 0
         self.material_id: int = 0
         self.release_id: int = 0
+        self.load_case_id: int = 0
 
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
@@ -30,6 +32,7 @@ class Controller:
         self.sections: list[Section] = []
         self.materials: list[Material] = []
         self.releases: list[Release] = []
+        self.load_cases: list[LoadCase] = []
 
         self.epsilon: float = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
@@ -452,6 +455,17 @@ class Controller:
     def remove_release(self, line) -> None:
         line.assign_release(None)
 
+    # HH: Load Case
+
+    def add_load_case(self, name) -> LoadCase:
+        self.load_case_id += 1
+        id = self.load_case_id
+
+        load_case = LoadCase(id, name)
+
+        self.load_cases.append(load_case)
+        return load_case
+
     # HH: Reporting
 
     def __str__(self) -> str:
@@ -477,6 +491,7 @@ class Controller:
             ("Section", self.sections),
             ("Material", self.materials),
             ("Release", self.releases),
+            ("Load Case", self.load_cases),
         ]
 
         for section_name, section_items in sections:

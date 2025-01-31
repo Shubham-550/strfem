@@ -6,6 +6,7 @@ from .str_support import Support
 from .str_section import Section
 from .str_material import Material
 from .str_release import Release
+from .str_load_case import LoadCase
 
 __all__ = [
     "Controller",
@@ -16,4 +17,5 @@ __all__ = [
     "Section",
     "Material",
     "Release",
+    "LoadCase",
 ]

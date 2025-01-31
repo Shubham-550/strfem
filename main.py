@@ -50,6 +50,11 @@ def main() -> None:
     controller.apply_release(line2, release2)
     controller.apply_release(line3, release3)
 
+    # Load Case
+    load_case1 = controller.add_load_case("Dead Load")
+    load_case2 = controller.add_load_case("Live Load")
+    load_case3 = controller.add_load_case("Wind Load")
+
     print(controller)
 
     # viewer.render(controller)
