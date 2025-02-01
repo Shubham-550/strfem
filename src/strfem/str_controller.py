@@ -12,6 +12,7 @@ from strfem.str_material import Material
 from strfem.str_release import Release
 from strfem.str_load_case import LoadCase
 from strfem.str_nodal_load import NodalLoad
+from strfem.str_line_load_concentrated import LineLoadConcentrated
 
 
 @dataclass()
@@ -27,6 +28,7 @@ class Controller:
         self.release_id: int = 0
         self.load_case_id: int = 0
         self.nodal_load_id: int = 0
+        self.line_load_conc_id: int = 0
 
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
@@ -36,6 +38,7 @@ class Controller:
         self.releases: list[Release] = []
         self.load_cases: list[LoadCase] = []
         self.nodal_loads: list[NodalLoad] = []
+        self.line_load_concs: list[LineLoadConcentrated] = []
 
         self.epsilon: float = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
@@ -493,6 +496,38 @@ class Controller:
     def remove_nodal_load(self, nodal_load: NodalLoad, node: Node) -> None:
         nodal_load.remove(node)
 
+    # HH: Concentrated Line Load
+    def add_line_load_conc(
+        self,
+        load_case_id: int,
+        Fx: float = 0,
+        Fy: float = 0,
+        Fz: float = 0,
+        Mx: float = 0,
+        My: float = 0,
+        Mz: float = 0,
+    ) -> LineLoadConcentrated:
+        self.line_load_conc_id += 1
+        id: int = self.line_load_conc_id
+
+        line_load_conc = LineLoadConcentrated(id, load_case_id, Fx, Fy, Fz, Mx, My, Mz)
+
+        self.line_load_concs.append(line_load_conc)
+        return line_load_conc
+
+    def apply_line_load(
+        self,
+        line_load_conc: LineLoadConcentrated,
+        line: Line,
+        locx: list[float] | float,
+    ) -> None:
+        line_load_conc.apply(line, locx)
+
+    def remove_line_load(
+        self, line_load_conc: LineLoadConcentrated, line: Line
+    ) -> None:
+        line_load_conc.remove(line)
+
     # HH: Reporting
 
     def __str__(self) -> str:
@@ -520,6 +555,7 @@ class Controller:
             ("Release", self.releases),
             ("Load Case", self.load_cases),
             ("Nodal Load", self.nodal_loads),
+            ("Line Load Concentrated", self.line_load_concs),
         ]
 
         for section_name, section_items in sections:

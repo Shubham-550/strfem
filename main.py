@@ -66,6 +66,22 @@ def main() -> None:
     controller.apply_nodal_load(nodal_load1, node4)
     controller.remove_nodal_load(nodal_load1, node4)
 
+    # Concentrated Line Load
+    line_load_conc1 = controller.add_line_load_conc(
+        load_case2.id, 2000, 1000, 500, 400, 300, 500
+    )
+    line_load_conc2 = controller.add_line_load_conc(
+        load_case2.id, 3000, 2000, 600, 500, 400, 600
+    )
+    line_load_conc3 = controller.add_line_load_conc(
+        load_case2.id, 4000, 3000, 700, 600, 500, 700
+    )
+
+    controller.apply_line_load(line_load_conc1, line1, [0.4, 0.3])
+    controller.apply_line_load(line_load_conc1, line2, 0.5)
+    controller.apply_line_load(line_load_conc2, line2, 0.4)
+    controller.apply_line_load(line_load_conc1, line3, 0.9)
+
     print(controller)
 
     # viewer.render(controller)

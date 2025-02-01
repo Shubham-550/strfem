@@ -8,6 +8,7 @@ from .str_material import Material
 from .str_release import Release
 from .str_load_case import LoadCase
 from .str_nodal_load import NodalLoad
+from .str_line_load_concentrated import LineLoadConcentrated
 
 __all__ = [
     "Controller",
@@ -20,4 +21,5 @@ __all__ = [
     "Release",
     "LoadCase",
     "NodalLoad",
+    "LineLoadConcentrated",
 ]
