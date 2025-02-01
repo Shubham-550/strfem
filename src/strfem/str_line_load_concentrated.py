@@ -37,18 +37,19 @@ class LineLoadConcentrated:
     Mx: float = 0
     My: float = 0
     Mz: float = 0
-    applied_to: dict[int, float | list[float]] = field(default_factory=dict)
+    applied_to: dict[int, list[float]] = field(default_factory=dict)
 
-    def apply(self, line: Line, xloc: list[float] | float = 0) -> None:
+    def apply(self, line: Line, xloc: list[float] | float = 0.0) -> None:
         """
         Applies the load to a specific structural line at the given location.
 
         Args:
             line (Str_line): The structural line to which the load is applied.
-            locx (list[float] | float): The location along the line where the load is applied. Default is 0.
+            xloc (list[float] | float): The location along the line where the load is applied. Default is 0.
         """
-        xloc = [xloc] if isinstance(xloc, float) else xloc
-        self.applied_to.update({line.id: xloc})
+        loc = ( [float(xloc)] if isinstance(xloc, (int, float)) else [float(val) for val in xloc])
+
+        self.applied_to[line.id] = loc
 
     def remove(self, line: Line) -> None:
         """

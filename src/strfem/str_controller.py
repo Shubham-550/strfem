@@ -13,6 +13,7 @@ from strfem.str_release import Release
 from strfem.str_load_case import LoadCase
 from strfem.str_nodal_load import NodalLoad
 from strfem.str_line_load_concentrated import LineLoadConcentrated
+from strfem.str_line_load_distributed import LineLoadDistributed
 
 
 @dataclass()
@@ -29,6 +30,7 @@ class Controller:
         self.load_case_id: int = 0
         self.nodal_load_id: int = 0
         self.line_load_conc_id: int = 0
+        self.line_load_dist_id: int = 0
 
         self.nodes: list[Node] = []
         self.lines: list[Line] = []
@@ -39,6 +41,7 @@ class Controller:
         self.load_cases: list[LoadCase] = []
         self.nodal_loads: list[NodalLoad] = []
         self.line_load_concs: list[LineLoadConcentrated] = []
+        self.line_load_dists: list[LineLoadDistributed] = []
 
         self.epsilon: float = 10 ** (-self.precision)
         self.node_lookup: dict[tuple[float], Node] = {}
@@ -497,6 +500,7 @@ class Controller:
         nodal_load.remove(node)
 
     # HH: Concentrated Line Load
+
     def add_line_load_conc(
         self,
         load_case_id: int,
@@ -506,25 +510,77 @@ class Controller:
         Mx: float = 0,
         My: float = 0,
         Mz: float = 0,
+        applied_to: dict[int, list[float]] | None = None,
     ) -> LineLoadConcentrated:
         self.line_load_conc_id += 1
-        id: int = self.line_load_conc_id
 
-        line_load_conc = LineLoadConcentrated(id, load_case_id, Fx, Fy, Fz, Mx, My, Mz)
+        if applied_to is None:
+            applied_to = {}
+
+        line_load_conc = LineLoadConcentrated(
+            self.line_load_conc_id, load_case_id, Fx, Fy, Fz, Mx, My, Mz, applied_to
+        )
 
         self.line_load_concs.append(line_load_conc)
         return line_load_conc
 
+    # HH: Linear Distributed Load
+
+    def add_line_load_dist(
+        self,
+        load_case_id: int,
+        x_span: float = 0,
+        Fx_start: float = 0,
+        Fy_start: float = 0,
+        Fz_start: float = 0,
+        Mx_start: float = 0,
+        My_start: float = 0,
+        Mz_start: float = 0,
+        Fx_end: float = 0,
+        Fy_end: float = 0,
+        Fz_end: float = 0,
+        Mx_end: float = 0,
+        My_end: float = 0,
+        Mz_end: float = 0,
+        applied_to: dict[int, list[float]] | None = None,
+    ) -> LineLoadDistributed:
+        self.line_load_dist_id += 1
+
+        if applied_to is None:
+            applied_to = {}
+
+        line_load_dist = LineLoadDistributed(
+            self.line_load_dist_id,
+            load_case_id,
+            x_span,
+            Fx_start,
+            Fy_start,
+            Fz_start,
+            Mx_start,
+            My_start,
+            Mz_start,
+            Fx_end,
+            Fy_end,
+            Fz_end,
+            Mx_end,
+            My_end,
+            Mz_end,
+            applied_to,
+        )
+
+        self.line_load_dists.append(line_load_dist)
+        return line_load_dist
+
     def apply_line_load(
         self,
-        line_load_conc: LineLoadConcentrated,
+        line_load_conc: LineLoadConcentrated | LineLoadDistributed,
         line: Line,
-        locx: list[float] | float,
+        xloc: list[float] | float,
     ) -> None:
-        line_load_conc.apply(line, locx)
+        line_load_conc.apply(line, xloc)
 
     def remove_line_load(
-        self, line_load_conc: LineLoadConcentrated, line: Line
+        self, line_load_conc: LineLoadConcentrated | LineLoadDistributed, line: Line
     ) -> None:
         line_load_conc.remove(line)
 
@@ -556,6 +612,7 @@ class Controller:
             ("Load Case", self.load_cases),
             ("Nodal Load", self.nodal_loads),
             ("Line Load Concentrated", self.line_load_concs),
+            ("Line Load Distributed", self.line_load_dists),
         ]
 
         for section_name, section_items in sections:

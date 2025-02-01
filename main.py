@@ -82,6 +82,22 @@ def main() -> None:
     controller.apply_line_load(line_load_conc2, line2, 0.4)
     controller.apply_line_load(line_load_conc1, line3, 0.9)
 
+    # # Distributed Line Load
+    line_load_dist1 = controller.add_line_load_dist(
+        load_case3.id, 10, *range(100, 1300, 100), applied_to={}
+    )
+    line_load_dist2 = controller.add_line_load_dist(
+        load_case3.id, 20, *range(200, 1400, 100), applied_to={}
+    )
+    line_load_dist3 = controller.add_line_load_dist(
+        load_case3.id, 30, *range(300, 1500, 100), applied_to={}
+    )
+
+    controller.apply_line_load(line_load_dist1, line1, [20, 50])
+    controller.apply_line_load(line_load_dist2, line2, 20)
+    controller.apply_line_load(line_load_dist1, line3, 30)
+    controller.apply_line_load(line_load_dist1, line2, 40)
+
     print(controller)
 
     # viewer.render(controller)
