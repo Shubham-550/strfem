@@ -1,3 +1,6 @@
+import numpy as np
+import numpy.typing as npt
+
 from typing import ClassVar
 from dataclasses import dataclass
 
@@ -37,6 +40,12 @@ class Line:
         self.material: Material | None = None
         self.release: Release | None = None
 
+        self.vx: npt.ArrayLike = np.empty(3, dtype=float)
+        self.vy: npt.ArrayLike = np.empty(3, dtype=float)
+        self.vz: npt.ArrayLike = np.empty(3, dtype=float)
+
+        self.refresh()
+
     def assign_section(self, section: Section | None) -> None:
         self.section = section
 
@@ -45,6 +54,42 @@ class Line:
 
     def assign_release(self, release: Release | None) -> None:
         self.release = release
+
+    def refresh(self) -> None:
+        """
+        Updates the line element's directional vectors (vx, vy, vz) based on the coordinates of the start
+        and end nodes. Also normalizes these vectors for consistency.
+
+        - vx: Unit vector along the line from node1 to node2.
+        - vy: Perpendicular unit vector (horizontal if possible).
+        - vz: Perpendicular unit vector orthogonal to both vx and vy.
+        """
+        # Calculate the vector from node1 to node2 and normalize it
+
+        self.vx = self.node2.coord - self.node1.coord
+        self.vx_norm = np.linalg.norm(self.vx)
+        self.vx = self.vx / self.vx_norm
+
+        # Calculate vy and vz
+        # Check if the line is approximately vertical (aligned with the global Z-axis)
+        if (
+            abs(self.vx[0]) < Line.epsilon
+            and abs(self.vx[1]) < Line.epsilon
+            and abs(self.vx[2]) > Line.epsilon
+        ):
+            # Special case: Line is parallel to the global Z-axis
+            self.vy = np.array([0, 1, 0])  # Arbitrary horizontal vector
+            self.vz = np.cross(self.vx, self.vy)
+
+        else:
+            # General case: Compute vz as [0, 0, 1], vy as cross product of vz and vx
+            self.vz = np.array([0, 0, 1])  # Global Z-axis vector
+
+            self.vy = np.cross(self.vz, self.vx)
+            self.vy = self.vy / np.linalg.norm(self.vy)  # Normalize vy
+
+            self.vz = np.cross(self.vx, self.vy)
+            self.vz = self.vz / np.linalg.norm(self.vz)  # Normalize vz
 
     def __str__(self) -> str:
         """
@@ -58,12 +103,12 @@ class Line:
 
         return (
             f"Line Details:\n"
-            f"  ID:          #{self.id}\n"
-            f"  Nodes:       {self.node1.id} -> {self.node2.id}\n"
-            f"  Coordinates: {node1_coord} -> {node2_coord}\n"
-            f"  Section:     {self.section.name if self.section else 'Unassigned'}\n"
-            f"  Material:    {self.material.name if self.material else 'Unassigned'}\n"
-            f"  Release:     {self.release.name if self.release else 'Unassigned'}\n"
+            f"      ID:          #{self.id}\n"
+            f"      Nodes:       {self.node1.id}  -->  {self.node2.id}\n"
+            f"      Coordinates: {node1_coord}  -->  {node2_coord}\n"
+            f"      Section:     {self.section.name if self.section else 'Unassigned'}\n"
+            f"      Material:    {self.material.name if self.material else 'Unassigned'}\n"
+            f"      Release:     {self.release.name if self.release else 'Unassigned'}\n"
         )
 
 

@@ -74,14 +74,14 @@ class LineLoadConcentrated:
 
         return (
             f"Line Load Concentrated #{self.id} \n"
-            f"  Load Case #{self.load_case_id} \n"
-            f"  Fx = {self.Fx:.2f} N \n"
-            f"  Fy = {self.Fy:.2f} N \n"
-            f"  Fz = {self.Fz:.2f} N \n"
-            f"  Mx = {self.Mx:.2f} Nm \n"
-            f"  My = {self.My:.2f} Nm \n"
-            f"  Mz = {self.Mz:.2f} Nm \n"
-            f"  Applied to lines: {formatted_lines if self.applied_to else 'Unassigned'} \n"
+            f"      Load Case #{self.load_case_id} \n"
+            f"      Fx = {self.Fx:.2f} N \n"
+            f"      Fy = {self.Fy:.2f} N \n"
+            f"      Fz = {self.Fz:.2f} N \n"
+            f"      Mx = {self.Mx:.2f} Nm \n"
+            f"      My = {self.My:.2f} Nm \n"
+            f"      Mz = {self.Mz:.2f} Nm \n"
+            f"      Applied to lines: {formatted_lines if self.applied_to else 'Unassigned'} \n"
         )
 
 

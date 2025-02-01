@@ -95,7 +95,7 @@ def main() -> None:
 
     controller.apply_line_load(line_load_dist1, line1, [20, 50])
     controller.apply_line_load(line_load_dist2, line2, 20)
-    controller.apply_line_load(line_load_dist1, line3, 30)
+    controller.apply_line_load(line_load_dist3, line3, 30)
     controller.apply_line_load(line_load_dist1, line2, 40)
 
     print(controller)

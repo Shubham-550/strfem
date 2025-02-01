@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.typing as npt
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from strfem.str_support import Support
 
@@ -21,14 +21,12 @@ class Node:
     Node #1 (Free) at [ 1.00, 2.00, 3.00]
     """
 
-    id: int
-    coord: npt.ArrayLike = field(default_factory=lambda: np.empty(3, dtype=float))
-
-    def __post_init__(self) -> None:
-        # Decompose coordinates
-        self.coord = np.array(self.coord)
+    def __init__(
+        self, id: int, coord: npt.ArrayLike = np.empty(3, dtype=float)
+    ) -> None:
+        self.id = id
+        self.coord = np.asarray(coord, dtype=float)
         self.x, self.y, self.z = self.coord
-
         self.support: Support | None = None
 
     def assign_support(self, support: Support | None) -> None:
@@ -39,7 +37,7 @@ class Node:
         """Return a formatted string representation of the node."""
         coord_str = f"[{self.x:5.2f},{self.y:5.2f},{self.z:5.2f}]"
         support_status = self.support.name if self.support else "Free"
-        return f"Node #{self.id} ({support_status:<8}) at {coord_str}"
+        return f"Node #{self.id} {support_status:<10} at {coord_str}"
 
     def __hash__(self) -> int:
         return hash(self.id)  # Use the unique ID for hashing
@@ -52,7 +50,8 @@ class Node:
 
 def main() -> None:
     node1 = Node(1, [1, 2, 3])
-    node2 = Node(2, [4, 5, 6])
+    # node2 = Node(2, [4, 5, 6])
+    node2 = Node(1)
 
     print(node1)
     print(node2)

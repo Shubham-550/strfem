@@ -162,7 +162,7 @@ class Release:
         status_str_end = (
             f"{''.join(self.status_end[:3])}, {''.join(self.status_end[3:])}"
         )
-        return f"Release #{self.id} {self.name:<10} S[{status_str_start}] --> E[{status_str_end}]"
+        return f"Release #{self.id} {self.name:<10}  S[{status_str_start}]  -->  E[{status_str_end}]"
 
 
 def main() -> None:

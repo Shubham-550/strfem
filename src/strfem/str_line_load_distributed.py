@@ -86,21 +86,21 @@ class LineLoadDistributed:
         for line_id, xloc in self.applied_to.items():
             for x in xloc:
                 formatted_lines.append(
-                    f"\n                    #{line_id} @ {x:5.2f} m -> {x + self.xspan:5.2f} m"
+                    f"\n                    #{line_id} @ {x:5.2f} m  -->  {x + self.xspan:5.2f} m"
                 )
 
         formatted_lines_str = ",".join(formatted_lines)
 
         return (
             f"Line Load Distributed #{self.id} \n"
-            f"  Load Case #{self.load_case_id} \n"
-            f"  Fx = {self.Fx_start:.2f} N  -> Fx = {self.Fx_end:.2f} N  \n"
-            f"  Fy = {self.Fy_start:.2f} N  -> Fy = {self.Fy_end:.2f} N  \n"
-            f"  Fz = {self.Fz_start:.2f} N  -> Fz = {self.Fz_end:.2f} N  \n"
-            f"  Mx = {self.Mx_start:.2f} Nm -> Mx = {self.Mx_end:.2f} Nm \n"
-            f"  My = {self.My_start:.2f} Nm -> My = {self.My_end:.2f} Nm \n"
-            f"  Mz = {self.Mz_start:.2f} Nm -> Mz = {self.Mz_end:.2f} Nm \n"
-            f"  Applied to Lines: {formatted_lines_str if self.applied_to else 'Unassigned'} \n"
+            f"      Load Case #{self.load_case_id} \n"
+            f"      Fx = {self.Fx_start:.2f} N   -->  Fx = {self.Fx_end:.2f} N  \n"
+            f"      Fy = {self.Fy_start:.2f} N   -->  Fy = {self.Fy_end:.2f} N  \n"
+            f"      Fz = {self.Fz_start:.2f} N   -->  Fz = {self.Fz_end:.2f} N  \n"
+            f"      Mx = {self.Mx_start:.2f} Nm  -->  Mx = {self.Mx_end:.2f} Nm \n"
+            f"      My = {self.My_start:.2f} Nm  -->  My = {self.My_end:.2f} Nm \n"
+            f"      Mz = {self.Mz_start:.2f} Nm  -->  Mz = {self.Mz_end:.2f} Nm \n"
+            f"      Applied to Lines: {formatted_lines_str if self.applied_to else 'Unassigned'} \n"
         )
 
 
