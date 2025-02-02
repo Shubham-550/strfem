@@ -40,9 +40,9 @@ class Line:
         self.material: Material | None = None
         self.release: Release | None = None
 
-        self.vx: npt.ArrayLike = np.empty(3, dtype=float)
-        self.vy: npt.ArrayLike = np.empty(3, dtype=float)
-        self.vz: npt.ArrayLike = np.empty(3, dtype=float)
+        self.vx: npt.NDArray = np.empty(3, dtype=float)
+        self.vy: npt.NDArray = np.empty(3, dtype=float)
+        self.vz: npt.NDArray = np.empty(3, dtype=float)
 
         self.refresh()
 
@@ -64,9 +64,13 @@ class Line:
         - vy: Perpendicular unit vector (horizontal if possible).
         - vz: Perpendicular unit vector orthogonal to both vx and vy.
         """
-        # Calculate the vector from node1 to node2 and normalize it
 
+        # Calculate the vector from node1 to node2 and normalize it
         self.vx = self.node2.coord - self.node1.coord
+
+        # Center of gravity (CG)
+        self.CG = self.node1.coord + 0.5 * self.vx
+
         self.vx_norm = np.linalg.norm(self.vx)
         self.vx = self.vx / self.vx_norm
 
@@ -78,12 +82,12 @@ class Line:
             and abs(self.vx[2]) > Line.epsilon
         ):
             # Special case: Line is parallel to the global Z-axis
-            self.vy = np.array([0, 1, 0])  # Arbitrary horizontal vector
+            self.vy = np.asarray([0, 1, 0])  # Arbitrary horizontal vector
             self.vz = np.cross(self.vx, self.vy)
 
         else:
             # General case: Compute vz as [0, 0, 1], vy as cross product of vz and vx
-            self.vz = np.array([0, 0, 1])  # Global Z-axis vector
+            self.vz = np.asarray([0, 0, 1])  # Global Z-axis vector
 
             self.vy = np.cross(self.vz, self.vx)
             self.vy = self.vy / np.linalg.norm(self.vy)  # Normalize vy

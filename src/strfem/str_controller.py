@@ -68,7 +68,7 @@ class Controller:
                 raise ValueError("Coordinates must have exactly three values.")
 
             # Round coordinates to specified precision.
-            coord = np.round(np.array(coord, dtype=float), decimals=self.precision)
+            coord = np.round(np.asarray(coord, dtype=float), decimals=self.precision)
 
             # Check for existing node
             coord_tuple = tuple(coord)

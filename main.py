@@ -15,6 +15,7 @@ def main() -> None:
     line1 = controller.add_line(node1, node2)
     line2 = controller.add_line(node2, node3)
     line3 = controller.add_line(node3, node4)
+    line4 = controller.add_line(node1, node3)
 
     # Supports
     support1 = controller.add_support("pinned1", 1e15, 1e15, 1e15, 1e-4, 1e-4, 1e-4)
@@ -100,7 +101,7 @@ def main() -> None:
 
     print(controller)
 
-    # viewer.render(controller)
+    viewer.render(controller)
 
 
 if __name__ == "__main__":
