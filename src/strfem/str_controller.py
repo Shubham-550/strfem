@@ -600,6 +600,30 @@ class Controller:
     ) -> None:
         line_load_conc.remove(line)
 
+    # HH: Analysis
+
+    def linear_elastic_analysis(self):
+        self.clear_str_model()
+        self.prepare_str_model()
+        self.generate_elements()
+        self.solve_LE()
+        self.post_processing()
+
+    def clear_str_model(self):
+        pass
+
+    def prepare_str_model(self):
+        pass
+
+    def generate_elements(self):
+        pass
+
+    def solve_LE(self):
+        pass
+
+    def post_processing(self):
+        pass
+
     # HH: Reporting
 
     def __str__(self) -> str:

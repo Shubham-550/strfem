@@ -6,8 +6,13 @@ def main() -> None:
     controller = Controller()
     viewer = Viewer()
 
+    # Sample frame
     sample_frame(controller)
 
+    # Analysis
+    controller.linear_elastic_analysis()
+
+    # Reporting
     print(controller)
 
     # viewer.render(controller)
