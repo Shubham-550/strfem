@@ -308,7 +308,23 @@ class Controller:
 
     # HH: Material Properties
 
-    def add_material(self, name, E, G, nu) -> Material:
+    def add_material(
+        self,
+        name: str = "Steel",
+        E: float = 200e9,
+        G: float = 75e9,
+        nu: float = 0.3,
+    ) -> Material:
+        """
+        Material of the line
+        Default values are for Steal (E = 200 GPa, G = 75 GPa, Poisson's ratio = 0.3)
+
+        Attributes:
+            name: Namme of the material
+            E: Youngs Modulus of Elasticity
+            G: Shear Modulus
+            nu: Poisson's ratio
+        """
         self.material_id += 1
 
         material = Material(self.material_id, name, E, G, nu)
